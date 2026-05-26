@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>愛着スタイル診断</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink-50: #FBEAF0;
+    --pink-100: #F4C0D1;
+    --pink-200: #ED93B1;
+    --pink-400: #D4537E;
+    --pink-600: #993556;
+    --pink-800: #72243E;
+    --pink-900: #4B1528;
+    --mint-50: #E1F5EE;
+    --mint-100: #9FE1CB;
+    --mint-400: #1D9E75;
+    --mint-800: #085041;
+    --lav-50: #EEEDFE;
+    --lav-100: #CECBF6;
+    --lav-400: #7F77DD;
+    --lav-800: #3C3489;
+    --bg: #FFF8FB;
+    --card: #ffffff;
+    --text: #2a1a22;
+    --muted: #8a6a75;
+    --border: #F4C0D1;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .wrap { width: 100%; max-width: 520px; }
+
+  /* decorative blobs */
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .blob-1 { width: 260px; height: 260px; background: #FBEAF0; top: -60px; right: -60px; }
+  .blob-2 { width: 180px; height: 180px; background: #E1F5EE; bottom: 40px; left: -40px; }
+  .blob-3 { width: 120px; height: 120px; background: #EEEDFE; top: 50%; right: -30px; }
+
+  .wrap { position: relative; z-index: 1; }
+
+  /* screens */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ---------- INTRO ---------- */
+  .intro-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2rem;
+    padding-top: 1rem;
+  }
+  .intro-tag {
+    background: var(--pink-50);
+    color: var(--pink-600);
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 5px 14px;
+    border: 1.5px solid var(--pink-100);
+  }
+  .intro-icon-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+  .type-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    border: 1.5px solid;
+  }
+  .type-pill.green { background: var(--mint-50); color: var(--mint-800); border-color: var(--mint-100); }
+  .type-pill.pink  { background: var(--pink-50); color: var(--pink-800); border-color: var(--pink-100); }
+  .type-pill.lav   { background: var(--lav-50);  color: var(--lav-800);  border-color: var(--lav-100); }
+
+  .intro-h {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--text);
+    margin-bottom: .75rem;
+  }
+  .intro-h span { color: var(--pink-400); }
+  .intro-sub {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+  }
+  .intro-note {
+    font-size: 11px;
+    color: #b08a99;
+    line-height: 1.65;
+    background: var(--pink-50);
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    margin-bottom: 1.75rem;
+    border: 1px solid var(--pink-100);
+  }
+  .start-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--pink-400);
+    color: #fff;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 28px;
+    padding: .9rem 2.2rem;
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+  }
+  .start-btn:hover { background: var(--pink-600); transform: scale(1.02); }
+
+  /* ---------- QUIZ ---------- */
+  .quiz-header { padding-top: 1rem; margin-bottom: 1.5rem; }
+  .prog-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .prog-label { font-size: 12px; color: var(--pink-400); font-weight: 700; }
+  .prog-pct { font-size: 12px; color: var(--muted); }
+  .prog-track {
+    height: 5px;
+    background: var(--pink-50);
+    border-radius: 3px;
+    border: 1px solid var(--pink-100);
+  }
+  .prog-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--pink-200);
+    transition: width .4s ease;
+  }
+
+  .q-card {
+    background: var(--card);
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    padding: 1.5rem 1.5rem 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .q-num-badge {
+    display: inline-block;
+    background: var(--pink-50);
+    color: var(--pink-600);
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 3px 10px;
+    margin-bottom: .75rem;
+    border: 1px solid var(--pink-100);
+  }
+  .q-text {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.25rem; }
+  .choice {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: .9rem 1.1rem;
+    cursor: pointer;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    text-align: left;
+    line-height: 1.6;
+    transition: border-color .15s, background .15s, transform .1s;
+  }
+  .choice:hover { border-color: var(--pink-200); background: var(--pink-50); transform: translateX(3px); }
+  .choice.selected { border-color: var(--pink-400); background: var(--pink-50); color: var(--pink-800); }
+  .choice.selected::before { content: "✓ "; }
+
+  .nav { display: flex; justify-content: space-between; align-items: center; }
+  .back-btn {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: .55rem 1.2rem;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .back-btn:hover { background: var(--pink-50); }
+  .back-btn:disabled { opacity: .3; cursor: default; }
+  .next-btn {
+    background: var(--pink-400);
+    border: none;
+    border-radius: 20px;
+    padding: .55rem 1.6rem;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .next-btn:hover { background: var(--pink-600); transform: scale(1.03); }
+  .next-btn:disabled { background: var(--pink-100); color: var(--pink-600); cursor: default; transform: none; }
+
+  /* ---------- RESULT ---------- */
+  .result-top { text-align: center; padding-top: 1rem; margin-bottom: 1.5rem; }
+  .result-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 5px 16px;
+    display: inline-block;
+    margin-bottom: 1rem;
+    border: 1.5px solid;
+  }
+  .result-icon {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    border: 2.5px solid;
+  }
+  .result-name { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+  .result-en { font-size: 12px; letter-spacing: .08em; margin-bottom: 1rem; color: var(--muted); }
+  .result-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.85;
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+
+  .share-card {
+    border-radius: 20px;
+    border: 2px solid;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .share-head { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
+  .share-icon-sm {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+    border: 2px solid;
+  }
+  .share-title { font-size: 17px; font-weight: 700; }
+  .share-sub { font-size: 11px; margin-top: 2px; letter-spacing: .05em; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.1rem; }
+  .tag {
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 4px 11px;
+    border: 1.5px solid;
+  }
+
+  .bars { display: flex; flex-direction: column; gap: 9px; }
+  .bar-row {}
+  .bar-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .bar-track {
+    height: 6px;
+    background: #f0eaf0;
+    border-radius: 3px;
+  }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+  .actions { display: flex; gap: 10px; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap; }
+  .act-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border-radius: 20px;
+    padding: .65rem 1.4rem;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: background .15s, transform .1s;
+  }
+  .act-copy { background: var(--pink-50); color: var(--pink-800); border: 1.5px solid var(--pink-100); }
+  .act-copy:hover { background: var(--pink-100); }
+  .act-retry { background: var(--pink-400); color: #fff; }
+  .act-retry:hover { background: var(--pink-600); transform: scale(1.02); }
+
+  .disclaimer {
+    font-size: 11px;
+    color: #b08a99;
+    text-align: center;
+    line-height: 1.65;
+    margin-top: .5rem;
+  }
+
+  /* copy toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: .6rem 1.4rem;
+    opacity: 0;
+    transition: opacity .3s, transform .3s;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<div class="wrap">
+
+  <!-- INTRO -->
+  <div id="intro" class="screen active">
+    <div class="intro-top">
+      <span class="intro-tag">心理診断</span>
+    </div>
+    <div class="intro-icon-row">
+      <span class="type-pill green">🌿 安定型</span>
+      <span class="type-pill pink">🌸 不安型</span>
+      <span class="type-pill lav">🌙 回避型</span>
+    </div>
+    <h1 class="intro-h">あなたの<span>恋愛パターン</span>、<br>どのタイプ？</h1>
+    <p class="intro-sub">10問に答えるだけで、あなたの「愛着スタイル」がわかります。<br>友達と比べてみて。</p>
+    <div class="intro-note">この診断は心理学的な参考情報の提供を目的としており、専門的な心理診断・治療の代替にはなりません。</div>
+    <button class="start-btn" onclick="startQuiz()">診断スタート ✦</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" class="screen">
+    <div class="quiz-header">
+      <div class="prog-top">
+        <span class="prog-label" id="prog-label">Q1 / 10</span>
+        <span class="prog-pct" id="prog-pct">0%</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+    </div>
+    <div class="q-card">
+      <div class="q-num-badge" id="q-badge">Question 01</div>
+      <div class="q-text" id="qtext"></div>
+    </div>
+    <div class="choices" id="choices"></div>
+    <div class="nav">
+      <button class="back-btn" id="prevBtn" onclick="prev()" disabled>← 戻る</button>
+      <button class="next-btn" id="nextBtn" onclick="next()" disabled>次へ →</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" class="screen">
+    <div id="result-content"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">コピーしました！</div>
+
+<script>
+const qs=[
+  {t:"好きな人から返信が遅いとき、どう思う？",c:[
+    {t:"ちょっと気になるけど、忙しいかなと思える",s:3,a:0,f:0},
+    {t:"既読スルーだったら…と心配で頭から離れない",s:0,a:3,f:0},
+    {t:"自分も遅めだし、特に気にしない",s:0,a:0,f:3}
+  ]},
+  {t:"「もっと会いたい」と言われたら？",c:[
+    {t:"素直に嬉しい、私もそう思ってた",s:3,a:0,f:0},
+    {t:"嬉しいけど、本当に？って確かめたくなる",s:0,a:3,f:0},
+    {t:"少し息苦しい、自分のペースを守りたい",s:0,a:0,f:3}
+  ]},
+  {t:"恋愛でいちばん怖いのは？",c:[
+    {t:"特にない、自然な流れに任せる",s:3,a:0,f:0},
+    {t:"見捨てられること、突然冷められること",s:0,a:3,f:0},
+    {t:"自分の時間や自由を失うこと",s:0,a:0,f:3}
+  ]},
+  {t:"ケンカしたとき、どうする？",c:[
+    {t:"落ち着いてから話し合おうと思える",s:3,a:0,f:0},
+    {t:"すぐ仲直りしたくて何度も連絡してしまう",s:0,a:3,f:0},
+    {t:"しばらく距離を置く、自分から謝るのは苦手",s:0,a:0,f:3}
+  ]},
+  {t:"自分の弱みや悩みを相手に話せる？",c:[
+    {t:"信頼できる相手には自然に話せる",s:3,a:0,f:0},
+    {t:"話したいけど引かれそうで全部は言えない",s:0,a:3,f:0},
+    {t:"弱みは見せたくない、自分で解決したい",s:0,a:0,f:3}
+  ]},
+  {t:"「好き」と言われたとき、素直に受け取れる？",c:[
+    {t:"素直に嬉しい、私もと言える",s:3,a:0,f:0},
+    {t:"嬉しいけど、本気なの？と確認したくなる",s:0,a:3,f:0},
+    {t:"照れくさくて、言葉より行動で示してほしい",s:0,a:0,f:3}
+  ]},
+  {t:"交際が長くなると関係はどうなりがち？",c:[
+    {t:"お互いへの信頼が深まっていく",s:3,a:0,f:0},
+    {t:"相手の気持ちが薄れてないか不安が増す",s:0,a:3,f:0},
+    {t:"慣れてくると少し物足りなくなる",s:0,a:0,f:3}
+  ]},
+  {t:"「もっと頼って」と言われることある？",c:[
+    {t:"バランスよく頼れてると思う",s:3,a:0,f:0},
+    {t:"むしろ頼りすぎと言われる",s:0,a:3,f:0},
+    {t:"よく言われる、確かに頼むのが苦手",s:0,a:0,f:3}
+  ]},
+  {t:"あなたにとって「安心できる関係」とは？",c:[
+    {t:"信頼しあって、なんでも話し合える関係",s:3,a:0,f:0},
+    {t:"いつも近くにいて、連絡が途切れない関係",s:0,a:3,f:0},
+    {t:"干渉しすぎず、お互いの時間を大切にする関係",s:0,a:0,f:3}
+  ]},
+  {t:"好きな人に自分から「好き」と伝えられる？",c:[
+    {t:"気持ちが固まったら自然に言える",s:3,a:0,f:0},
+    {t:"言いたいけど断られたらと思うと躊躇する",s:0,a:3,f:0},
+    {t:"こっぱずかしくて言葉にするのが苦手",s:0,a:0,f:3}
+  ]}
+];
+
+const types={
+  s:{
+    name:"安定型",en:"Secure Type",icon:"🌿",
+    eyebrowBg:"#E1F5EE",eyebrowColor:"#085041",eyebrowBorder:"#9FE1CB",
+    iconBg:"#E1F5EE",iconBorder:"#9FE1CB",nameColor:"#085041",
+    cardBg:"#E1F5EE",cardBorder:"#9FE1CB",
+    tagBg:"#E1F5EE",tagColor:"#085041",tagBorder:"#9FE1CB",
+    barColor:"#1D9E75",
+    shareTitleColor:"#085041",shareSubColor:"#0F6E56",
+    desc:"自分も相手も信頼できる、バランスの良い愛着スタイル。感情を自然に表現でき、衝突しても話し合いで解決しようとします。依存しすぎず、でも孤独にもなりすぎない関係が得意です。",
+    tags:["信頼感が高い","感情が安定","対等な関係","頼るのも頼られるのも得意","コミュ力◎"],
+    bars:{安心感:88,共感力:70,自立度:60,柔軟性:82}
+  },
+  a:{
+    name:"不安型",en:"Anxious Type",icon:"🌸",
+    eyebrowBg:"#FBEAF0",eyebrowColor:"#72243E",eyebrowBorder:"#F4C0D1",
+    iconBg:"#FBEAF0",iconBorder:"#F4C0D1",nameColor:"#72243E",
+    cardBg:"#FBEAF0",cardBorder:"#F4C0D1",
+    tagBg:"#FBEAF0",tagColor:"#72243E",tagBorder:"#F4C0D1",
+    barColor:"#D4537E",
+    shareTitleColor:"#72243E",shareSubColor:"#993556",
+    desc:"愛情への感受性がとても高い愛着スタイル。相手のことをいつも考えてしまい、少しの変化も気になります。見捨てられることへの恐れが強い一方で、愛情表現がとても豊かです。",
+    tags:["感受性が高い","愛情表現が豊か","共感力が強い","一途に想える","深くつながりたい"],
+    bars:{安心感:38,共感力:90,自立度:22,柔軟性:45}
+  },
+  f:{
+    name:"回避型",en:"Avoidant Type",icon:"🌙",
+    eyebrowBg:"#EEEDFE",eyebrowColor:"#3C3489",eyebrowBorder:"#CECBF6",
+    iconBg:"#EEEDFE",iconBorder:"#CECBF6",nameColor:"#3C3489",
+    cardBg:"#EEEDFE",cardBorder:"#CECBF6",
+    tagBg:"#EEEDFE",tagColor:"#3C3489",tagBorder:"#CECBF6",
+    barColor:"#7F77DD",
+    shareTitleColor:"#3C3489",shareSubColor:"#534AB7",
+    desc:"自立心が強く、自分のペースを大切にする愛着スタイル。距離を置くことで心の平静を保ちます。内心では深くつながりたい気持ちがありつつも、踏み込まれると居心地が悪くなることも。",
+    tags:["自立心が強い","一人の時間が好き","冷静に見られがち","感情表現は控えめ","マイペース"],
+    bars:{安心感:50,共感力:55,自立度:90,柔軟性:38}
+  }
+};
+
+let cur=0,sc={s:0,a:0,f:0},sel=null;
+
+function startQuiz(){
+  document.getElementById('intro').classList.remove('active');
+  document.getElementById('quiz').classList.add('active');
+  renderQ();
+}
+
+function renderQ(){
+  const q=qs[cur];
+  const pct=Math.round((cur/qs.length)*100);
+  document.getElementById('prog').style.width=pct+'%';
+  document.getElementById('prog-label').textContent='Q'+(cur+1)+' / '+qs.length;
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('q-badge').textContent='Question '+(cur+1<10?'0':'')+(cur+1);
+  document.getElementById('qtext').textContent=q.t;
+  const wrap=document.getElementById('choices');
+  wrap.innerHTML='';
+  sel=null;
+  document.getElementById('nextBtn').disabled=true;
+  document.getElementById('prevBtn').disabled=cur===0;
+  q.c.forEach((ch,i)=>{
+    const b=document.createElement('button');
+    b.className='choice';
+    b.textContent=ch.t;
+    b.onclick=()=>{
+      sel=ch;
+      document.querySelectorAll('.choice').forEach((x,j)=>x.classList.toggle('selected',j===i));
+      document.getElementById('nextBtn').disabled=false;
+    };
+    wrap.appendChild(b);
+  });
+}
+
+function next(){
+  if(!sel)return;
+  sc.s+=sel.s;sc.a+=sel.a;sc.f+=sel.f;
+  cur++;
+  if(cur>=qs.length)showResult();else renderQ();
+}
+
+function prev(){if(cur===0)return;cur--;renderQ();}
+
+function showResult(){
+  document.getElementById('quiz').classList.remove('active');
+  document.getElementById('result').classList.add('active');
+  const top=Object.entries(sc).sort((a,b)=>b[1]-a[1])[0][0];
+  const t=types[top];
+  const barsHTML=Object.entries(t.bars).map(([k,v])=>`
+    <div class="bar-row">
+      <div class="bar-meta"><span>${k}</span><span>${v}%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${v}%;background:${t.barColor}"></div></div>
+    </div>`).join('');
+  const tagsHTML=t.tags.map(tg=>`<span class="tag" style="background:${t.tagBg};color:${t.tagColor};border-color:${t.tagBorder}">${tg}</span>`).join('');
+  document.getElementById('result-content').innerHTML=`
+    <div class="result-top">
+      <div class="result-eyebrow" style="background:${t.eyebrowBg};color:${t.eyebrowColor};border-color:${t.eyebrowBorder}">あなたのタイプ</div>
+      <div class="result-icon" style="background:${t.iconBg};border-color:${t.iconBorder}">${t.icon}</div>
+      <div class="result-name" style="color:${t.nameColor}">${t.name}</div>
+      <div class="result-en">${t.en}</div>
+      <p class="result-desc">${t.desc}</p>
+    </div>
+    <div class="share-card" style="background:${t.cardBg};border-color:${t.cardBorder}">
+      <div class="share-head">
+        <div class="share-icon-sm" style="background:${t.iconBg};border-color:${t.iconBorder}">${t.icon}</div>
+        <div>
+          <div class="share-title" style="color:${t.shareTitleColor}">${t.name}</div>
+          <div class="share-sub" style="color:${t.shareSubColor}">${t.en}</div>
+        </div>
+      </div>
+      <div class="tags">${tagsHTML}</div>
+      <div class="bars">${barsHTML}</div>
+    </div>
+    <div class="actions">
+      <button class="act-btn act-copy" onclick="copyResult('${t.name}','${t.en}')">📋 結果をコピー</button>
+      <button class="act-btn act-retry" onclick="retry()">↩ もう一度</button>
+    </div>
+    <p class="disclaimer">この診断は参考情報です。専門的な心理診断の代替ではありません。</p>
+  `;
+}
+
+function copyResult(name,en){
+  const txt='【愛着スタイル診断】\n私は「'+name+'（'+en+'）」でした！\nあなたは何タイプ？';
+  navigator.clipboard.writeText(txt).then(()=>{
+    const t=document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2200);
+  });
+}
+
+function retry(){
+  cur=0;sc={s:0,a:0,f:0};sel=null;
+  document.getElementById('result').classList.remove('active');
+  document.getElementById('intro').classList.add('active');
+}
+</script>
+</body>
+</html>
