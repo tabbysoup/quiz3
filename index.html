@@ -325,8 +325,13 @@
   }
   .act-copy { background: var(--pink-50); color: var(--pink-800); border: 1.5px solid var(--pink-100); }
   .act-copy:hover { background: var(--pink-100); }
+  .act-x { background: #000; color: #fff; border: 1.5px solid #000; }
+  .act-x:hover { background: #222; }
+  .act-insta { background: linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color: #fff; border: none; }
+  .act-insta:hover { opacity: .88; }
   .act-retry { background: var(--pink-400); color: #fff; }
   .act-retry:hover { background: var(--pink-600); transform: scale(1.02); }
+  .share-label { font-size: 11px; color: var(--muted); text-align: center; margin-bottom: .5rem; margin-top: .25rem; }
 
   .disclaimer {
     font-size: 11px;
@@ -575,12 +580,32 @@ function showResult(){
       <div class="tags">${tagsHTML}</div>
       <div class="bars">${barsHTML}</div>
     </div>
+    <p class="share-label">結果をシェアする</p>
     <div class="actions">
-      <button class="act-btn act-copy" onclick="copyResult('${t.name}','${t.en}')">📋 結果をコピー</button>
+      <button class="act-btn act-x" onclick="shareX('${t.name}','${t.en}')">𝕏 Xに投稿</button>
+      <button class="act-btn act-insta" onclick="shareInsta('${t.name}','${t.en}')">📷 インスタ用コピー</button>
+    </div>
+    <div class="actions" style="margin-top:0">
       <button class="act-btn act-retry" onclick="retry()">↩ もう一度</button>
     </div>
     <p class="disclaimer">この診断は参考情報です。専門的な心理診断の代替ではありません。</p>
   `;
+}
+
+function shareX(name,en){
+  const url=encodeURIComponent(location.href);
+  const txt=encodeURIComponent('【愛着スタイル診断】\n私は「'+name+'（'+en+'）」でした！\nあなたは何タイプ？ #愛着スタイル診断 #恋愛診断\n');
+  window.open('https://twitter.com/intent/tweet?text='+txt+'&url='+url,'_blank');
+}
+
+function shareInsta(name,en){
+  const txt='【愛着スタイル診断】\n私は「'+name+'（'+en+'）」でした！\n\nあなたは何タイプ？友達にも送ってみて👇\n\n#愛着スタイル診断 #恋愛診断 #心理テスト #診断メーカー';
+  navigator.clipboard.writeText(txt).then(()=>{
+    const t=document.getElementById('toast');
+    t.textContent='インスタ用テキストをコピーしました！';
+    t.classList.add('show');
+    setTimeout(()=>{t.classList.remove('show');t.textContent='コピーしました！';},3000);
+  });
 }
 
 function copyResult(name,en){
