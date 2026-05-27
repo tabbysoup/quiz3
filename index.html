@@ -359,6 +359,37 @@
     z-index: 100;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--pink-100);
+  }
+  .footer-section {
+    background: var(--pink-50);
+    border: 1px solid var(--pink-100);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    margin-bottom: .75rem;
+  }
+  .footer-section h3 {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pink-600);
+    margin-bottom: .4rem;
+  }
+  .footer-section p {
+    font-size: 11px;
+    color: #b08a99;
+    line-height: 1.7;
+  }
+  .footer-copy {
+    font-size: 10px;
+    color: #c9a8b5;
+    text-align: center;
+    margin-top: .75rem;
+    padding-bottom: 1rem;
+  }
 </style>
 </head>
 <body>
@@ -409,6 +440,19 @@
   <div id="result" class="screen">
     <div id="result-content"></div>
   </div>
+
+
+<footer>
+  <div class="footer-section">
+    <h3>⚠️ 免責事項</h3>
+    <p>本診断は心理学の「愛着理論」をもとにした参考情報の提供を目的としています。医学的・臨床心理学的な診断ではありません。診断結果は個人の傾向を示す参考にとどまり、専門的な心理診断・カウンセリング・治療の代替にはなりません。メンタルヘルスに関してお悩みの方は、専門家にご相談ください。</p>
+  </div>
+  <div class="footer-section">
+    <h3>🔒 アクセス解析について</h3>
+    <p>本サイトはアクセス状況の把握のためVercel Analyticsを使用しています。収集されるデータはページビュー数・使用デバイス・地域などの統計情報のみです。氏名・メールアドレスなど個人を特定できる情報は一切収集していません。</p>
+  </div>
+  <p class="footer-copy">© 2025 愛着スタイル診断</p>
+</footer>
 
 </div>
 
